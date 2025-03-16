@@ -1,0 +1,224 @@
+paths:
+  /trpc/doctorList:
+    get:
+      summary: Get a list of all doctors
+      tags:
+        - Doctors
+      responses:
+        "200":
+          description: A list of doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    email:
+                      type: string
+
+  /trpc/doctorCreate:
+    post:
+      summary: Create a new doctor
+      tags:
+        - Doctors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Doctor created successfully
+          content:
+            application/json:
+              schema:
+                type: integer
+                description: The ID of the created doctor
+        "409":
+          description: Conflict - Doctor with this email already exists
+        "500":
+          description: Server error
+
+  /trpc/slotCreate:
+    post:
+      summary: Create slots for a doctor
+      tags:
+        - Slots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctor_id:
+                  type: integer
+                start_time:
+                  type: string
+                  format: date-time
+                end_time:
+                  type: string
+                  format: date-time
+                duration:
+                  type: integer
+                  description: Slot duration in minutes
+                repeat:
+                  type: integer
+                  description: Number of repetitions
+      responses:
+        "200":
+          description: Slots created successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    start_time:
+                      type: string
+                      format: date-time
+                    end_time:
+                      type: string
+                      format: date-time
+                    slot_id:
+                      type: integer
+                      nullable: true
+                    message:
+                      type: string
+                      nullable: true
+                      description: Error message if the slot is already booked
+        "400":
+          description: Bad request - Invalid date range or doctor does not exist
+        "500":
+          description: Server error
+
+  /trpc/appointmentCreate:
+    post:
+      summary: Book a slot (Create an appointment)
+      tags:
+        - Appointments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                slot_id:
+                  type: integer
+      responses:
+        "200":
+          description: Appointment booked successfully
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "400":
+          description: Bad request - Slot already booked
+        "500":
+          description: Server error
+
+  /trpc/showAllBooked:
+    post:
+      summary: Show all booked appointments for a doctor within a time range
+      tags:
+        - Appointments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctor_id:
+                  type: integer
+                start_time:
+                  type: string
+                  format: date-time
+                end_time:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          description: List of booked appointments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    doctor_id:
+                      type: integer
+                    start_time:
+                      type: string
+                      format: date-time
+                    end_time:
+                      type: string
+                      format: date-time
+                    booked:
+                      type: string
+                      format: date-time
+        "500":
+          description: Server error
+
+  /trpc/showAllAvailable:
+    post:
+      summary: Show all available slots for a doctor within a time range
+      tags:
+        - Slots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctor_id:
+                  type: integer
+                start_time:
+                  type: string
+                  format: date-time
+                end_time:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          description: List of available slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    doctor_id:
+                      type: integer
+                    start_time:
+                      type: string
+                      format: date-time
+                    end_time:
+                      type: string
+                      format: date-time
+                    booked:
+                      type: string
+                      nullable: true
+        "500":
+          description: Server error
